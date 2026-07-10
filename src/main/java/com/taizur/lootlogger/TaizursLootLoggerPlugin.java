@@ -2,48 +2,51 @@ package com.taizur.lootlogger;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.events.GameStateChanged;
+
+import net.runelite.api.ItemComposition;
+import net.runelite.api.NPC;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.events.NpcLootReceived;
 
-@Slf4j
+
 @PluginDescriptor(
 	name = "Taizur's Loot Logger"
 )
 public class TaizursLootLoggerPlugin extends Plugin
 {
-	@Inject
-	private Client client;
+	ItemStack loot;
+	String name;
+	int amount;
+	int price;
 
 	@Inject
 	private TaizursLootLoggerPluginConfig config;
 
-	@Override
-	protected void startUp() throws Exception
-	{
-		log.debug("Example started!");
-	}
-
-	@Override
-	protected void shutDown() throws Exception
-	{
-		log.debug("Example stopped!");
-	}
+	@Inject
+	private ItemManager itemManager;
 
 	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	public void onNpcLootReceived(NpcLootReceived lootEvent)
 	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
+		NPC mob = lootEvent.getNpc();
+		System.out.println("NPC: " + mob.getName());
+		for(ItemStack loot: lootEvent.getItems())
 		{
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
+
+			int id = loot.getId();
+			int quantity = loot.getQuantity();
+			ItemComposition composition = itemManager.getItemComposition(id);
+			String name = composition.getName();
+			System.out.println("Loot: " + quantity + " x " + name);
 		}
 	}
+
+
 
 	@Provides
 	TaizursLootLoggerPluginConfig provideConfig(ConfigManager configManager)
