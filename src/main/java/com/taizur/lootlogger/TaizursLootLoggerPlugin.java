@@ -30,6 +30,9 @@ public class TaizursLootLoggerPlugin extends Plugin
 	@Inject
 	private ItemManager itemManager;
 
+	@Inject
+	private DropLedger ledger;
+
 	@Subscribe
 	public void onNpcLootReceived(NpcLootReceived lootEvent)
 	{
@@ -39,10 +42,12 @@ public class TaizursLootLoggerPlugin extends Plugin
 		{
 
 			int id = loot.getId();
-			int quantity = loot.getQuantity();
+			long quantity = loot.getQuantity();
 			ItemComposition composition = itemManager.getItemComposition(id);
 			String name = composition.getName();
+			ledger.addDrop(id, name, quantity);
 			System.out.println("Loot: " + quantity + " x " + name);
+			System.out.println("Stored total for " + name + ": " + ledger.getDrop(id).getTotalQuantity());
 		}
 	}
 
