@@ -48,7 +48,6 @@ public class CsvDropRepository
 
     public void save(Collection<DropTotal> drops) throws IOException
     {
-        Collection<DropTotal> loadedDrops = new ArrayList<>();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile)))
         {
             writer.write("Item ID,Item Name,Tradeable,Total Quantity,GE Price");
