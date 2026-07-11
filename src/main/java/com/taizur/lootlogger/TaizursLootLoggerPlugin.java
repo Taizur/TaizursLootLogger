@@ -5,6 +5,7 @@ import javax.inject.Inject;
 
 import net.runelite.api.ItemComposition;
 import net.runelite.api.NPC;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
@@ -33,7 +34,10 @@ public class TaizursLootLoggerPlugin extends Plugin
 	private DropLedger ledger;
 
 	@Inject
-	CsvDropRepository repository;
+	private CsvDropRepository repository;
+
+	@Inject
+	private ClientThread clientThread;
 
 	@Override
 	protected void startUp() throws IOException {
@@ -43,9 +47,19 @@ public class TaizursLootLoggerPlugin extends Plugin
 
 		ledger.loadDrops(loadedDrops);
 
-		ledger.updatePrices();
+		clientThread.invokeLater(() ->
+		{
+			ledger.updatePrices();
 
-		repository.save(ledger.getAllDrops());
+			try
+			{
+				repository.save(ledger.getAllDrops());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		});
 	}
 
 	@Subscribe
@@ -61,8 +75,14 @@ public class TaizursLootLoggerPlugin extends Plugin
 			ItemComposition composition = itemManager.getItemComposition(id);
 			String name = composition.getName();
 			ledger.addDrop(id, name, quantity);
-			System.out.println("Loot: " + quantity + " x " + name);
-			System.out.println("Stored total for " + name + ": " + ledger.getDrop(id).getTotalQuantity());
+			try
+			{
+				repository.save(ledger.getAllDrops());
+				System.out.println("Data Saved.");
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
