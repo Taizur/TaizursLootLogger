@@ -15,6 +15,8 @@ import net.runelite.client.events.NpcLootReceived;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @PluginDescriptor(
@@ -39,26 +41,42 @@ public class TaizursLootLoggerPlugin extends Plugin
 	@Inject
 	private ClientThread clientThread;
 
+	private ExecutorService fileExecutor;
+
 	@Override
-	protected void startUp() throws IOException
+	protected void startUp()
 	{
-		repository.initialize();
+		fileExecutor = Executors.newSingleThreadExecutor();
 
-		Collection<DropTotal> loadedDrops = repository.load();
-
-		ledger.loadDrops(loadedDrops);
-
-		clientThread.invokeLater(() ->
+		fileExecutor.submit(() ->
 		{
-			ledger.updatePrices();
-
 			try
 			{
-				repository.save(ledger.getAllDrops());
+				repository.initialize();
+				Collection<DropTotal> loadedDrops = repository.load();
+
+				clientThread.invoke(() ->
+				{
+					ledger.loadDrops(loadedDrops);
+					ledger.updatePrices();
+					Collection<DropTotal> snapshot = ledger.snapshotDrops();
+
+					fileExecutor.submit(() ->
+					{
+						try
+						{
+							repository.save(snapshot);
+						}
+						catch (IOException e)
+						{
+							log.error("Failed to save refreshed loot prices", e);
+						}
+					});
+				});
 			}
 			catch (IOException e)
 			{
-				log.error("Failed to save loot data", e);
+				log.error("Failed to load loot data", e);
 			}
 		});
 	}
@@ -76,19 +94,25 @@ public class TaizursLootLoggerPlugin extends Plugin
 			ledger.addDrop(id, name, quantity);
 
 		}
-		try
+		Collection<DropTotal> snapshot = ledger.snapshotDrops();
+
+		fileExecutor.submit(() ->
 		{
-			repository.save(ledger.getAllDrops());
-		}
-		catch (IOException e) {
-			log.error("Failed to save loot data", e);
-		}
+			try
+			{
+				repository.save(snapshot);
+			}
+			catch (IOException e)
+			{
+				log.error("Failed to save loot data", e);
+			}
+		});
 	}
 
 	@Override
-	protected void shutDown() throws IOException
+	protected void shutDown()
 	{
-		repository.save(ledger.getAllDrops());
+		fileExecutor.shutdownNow();
 	}
 
 	@Provides

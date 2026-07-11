@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class DropLedger {
     private final Map<Integer, DropTotal> drops;
@@ -62,9 +63,36 @@ public class DropLedger {
 
     public void loadDrops(Collection<DropTotal> loadedDrops)
     {
-        for (DropTotal drop : loadedDrops)
+        for (DropTotal loadedDrop : loadedDrops)
         {
-            drops.put(drop.getItemId(), drop);
+            DropTotal existingDrop = drops.get(loadedDrop.getItemId());
+
+            if (existingDrop == null)
+            {
+                drops.put(loadedDrop.getItemId(), loadedDrop);
+            }
+            else
+            {
+                existingDrop.addQuantity(loadedDrop.getTotalQuantity());
+            }
         }
+    }
+
+    public Collection<DropTotal> snapshotDrops()
+    {
+        Collection<DropTotal> snapshot = new ArrayList<>();
+
+        for (DropTotal drop : drops.values())
+        {
+            snapshot.add(new DropTotal(
+                    drop.getItemId(),
+                    drop.getItemName(),
+                    drop.isTradeable(),
+                    drop.getTotalQuantity(),
+                    drop.getGePrice()
+            ));
+        }
+
+        return snapshot;
     }
 }
