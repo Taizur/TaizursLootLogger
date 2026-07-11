@@ -22,10 +22,6 @@ import java.util.Collection;
 )
 public class TaizursLootLoggerPlugin extends Plugin
 {
-	ItemStack loot;
-	String name;
-	int amount;
-	int price;
 
 	@Inject
 	private TaizursLootLoggerPluginConfig config;
@@ -36,7 +32,8 @@ public class TaizursLootLoggerPlugin extends Plugin
 	@Inject
 	private DropLedger ledger;
 
-	@Inject CsvDropRepository repository;
+	@Inject
+	CsvDropRepository repository;
 
 	@Override
 	protected void startUp() throws IOException {
@@ -69,7 +66,11 @@ public class TaizursLootLoggerPlugin extends Plugin
 		}
 	}
 
-
+	@Override
+	protected void shutDown() throws IOException
+	{
+		repository.save(ledger.getAllDrops());
+	}
 
 	@Provides
 	TaizursLootLoggerPluginConfig provideConfig(ConfigManager configManager)
