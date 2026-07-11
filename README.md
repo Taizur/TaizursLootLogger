@@ -1,6 +1,6 @@
-# Taizur's Loot Logger
+# CSV Lifetime Drop Ledger
 
-Taizur's Loot Logger is a RuneLite plugin that tracks lifetime NPC loot drops.
+CSV Lifetime Drop Ledger is a RuneLite plugin that tracks lifetime NPC loot drops.
 
 The plugin records dropped items, total quantities, tradeable status, and Grand Exchange prices in a local CSV file. 
 This makes it easy to keep a long-term record of loot across multiple accounts outside a single RuneLite session.

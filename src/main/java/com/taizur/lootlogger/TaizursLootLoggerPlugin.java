@@ -1,11 +1,9 @@
 package com.taizur.lootlogger;
 
-import com.google.inject.Provides;
-import javax.inject.Inject;
 
+import javax.inject.Inject;
 import net.runelite.api.ItemComposition;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemStack;
@@ -20,7 +18,7 @@ import java.util.concurrent.Executors;
 
 
 @PluginDescriptor(
-	name = "Taizur's Loot Logger"
+	name = "CSV Lifetime Drop Ledger"
 )
 @Slf4j
 public class TaizursLootLoggerPlugin extends Plugin
@@ -118,9 +116,5 @@ public class TaizursLootLoggerPlugin extends Plugin
 		ledger.clear();
 	}
 
-	@Provides
-	TaizursLootLoggerPluginConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(TaizursLootLoggerPluginConfig.class);
-	}
+
 }
