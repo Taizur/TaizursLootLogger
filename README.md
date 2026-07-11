@@ -7,17 +7,16 @@ This makes it easy to keep a long-term record of loot across multiple accounts o
 
 ## Features
 
-- Tracks NPC loot drops received by the player
 - Currently tracks NPC loot received through RuneLite’s NPC loot events. 
-- Loot from chests, caskets, skilling, and similar sources is not yet supported.
+- Loot from chests, caskets, skilling, and similar sources is not yet supported
 - Stores lifetime item quantities by item ID
 - Records item name, tradeable status, total quantity, and GE price
-- Saves loot data to a local CSV file for easy view in spreadsheets.
+- Saves loot data to a local CSV file for easy view in spreadsheets
 - Loads existing loot data when RuneLite starts
 - Skips malformed CSV rows instead of failing to start
 
 Note: The plugin exports standard CSV data only.
-       Spreadsheet setup, formulas, and custom integrations are left up to the user.
+       Spreadsheet setup, formulas, and custom integrations are left up to the user
 
 ## Data Storage
 
