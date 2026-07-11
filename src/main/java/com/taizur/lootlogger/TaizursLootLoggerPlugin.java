@@ -4,7 +4,6 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 
 import net.runelite.api.ItemComposition;
-import net.runelite.api.NPC;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -41,7 +40,8 @@ public class TaizursLootLoggerPlugin extends Plugin
 	private ClientThread clientThread;
 
 	@Override
-	protected void startUp() throws IOException {
+	protected void startUp() throws IOException
+	{
 		repository.initialize();
 
 		Collection<DropTotal> loadedDrops = repository.load();
