@@ -13,6 +13,9 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.events.NpcLootReceived;
 
+import java.io.IOException;
+import java.util.Collection;
+
 
 @PluginDescriptor(
 	name = "Taizur's Loot Logger"
@@ -32,6 +35,21 @@ public class TaizursLootLoggerPlugin extends Plugin
 
 	@Inject
 	private DropLedger ledger;
+
+	@Inject CsvDropRepository repository;
+
+	@Override
+	protected void startUp() throws IOException {
+		repository.initialize();
+
+		Collection<DropTotal> loadedDrops = repository.load();
+
+		ledger.loadDrops(loadedDrops);
+
+		ledger.updatePrices();
+
+		repository.save(ledger.getAllDrops());
+	}
 
 	@Subscribe
 	public void onNpcLootReceived(NpcLootReceived lootEvent)

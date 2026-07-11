@@ -4,6 +4,7 @@ import net.runelite.api.ItemComposition;
 import net.runelite.client.game.ItemManager;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,5 +44,27 @@ public class DropLedger {
     public DropTotal getDrop(int itemId)
     {
         return drops.get(itemId);
+    }
+
+    public void updatePrices()
+    {
+        for (DropTotal drop: drops.values())
+        {
+            int newPrice = itemManager.getItemPriceWithSource(drop.getItemId(), true);
+            drop.setGePrice(newPrice);
+        }
+    }
+
+    public Collection<DropTotal> getAllDrops()
+    {
+        return drops.values();
+    }
+
+    public void loadDrops(Collection<DropTotal> loadedDrops)
+    {
+        for (DropTotal drop : loadedDrops)
+        {
+            drops.put(drop.getItemId(), drop);
+        }
     }
 }

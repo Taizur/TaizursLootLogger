@@ -1,5 +1,8 @@
 package com.taizur.lootlogger;
 
+import lombok.Getter;
+
+@Getter
 public class DropTotal
 {
     private final int itemId;
@@ -22,7 +25,7 @@ public class DropTotal
         totalQuantity += quantity;
     }
 
-    public long getTotalQuantity() {
-        return totalQuantity;
+    public void setGePrice(int gePrice) {
+        this.gePrice = gePrice;
     }
 }
