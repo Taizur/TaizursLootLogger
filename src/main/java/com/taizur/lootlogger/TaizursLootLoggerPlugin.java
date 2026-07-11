@@ -13,7 +13,7 @@ import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.events.NpcLootReceived;
-
+import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -21,6 +21,7 @@ import java.util.Collection;
 @PluginDescriptor(
 	name = "Taizur's Loot Logger"
 )
+@Slf4j
 public class TaizursLootLoggerPlugin extends Plugin
 {
 
@@ -57,7 +58,7 @@ public class TaizursLootLoggerPlugin extends Plugin
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				log.error("Failed to save loot data", e);
 			}
 		});
 	}
@@ -65,8 +66,6 @@ public class TaizursLootLoggerPlugin extends Plugin
 	@Subscribe
 	public void onNpcLootReceived(NpcLootReceived lootEvent)
 	{
-		NPC mob = lootEvent.getNpc();
-		System.out.println("NPC: " + mob.getName());
 		for(ItemStack loot: lootEvent.getItems())
 		{
 
@@ -75,13 +74,14 @@ public class TaizursLootLoggerPlugin extends Plugin
 			ItemComposition composition = itemManager.getItemComposition(id);
 			String name = composition.getName();
 			ledger.addDrop(id, name, quantity);
-			try
-			{
-				repository.save(ledger.getAllDrops());
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+
+		}
+		try
+		{
+			repository.save(ledger.getAllDrops());
+		}
+		catch (IOException e) {
+			log.error("Failed to save loot data", e);
 		}
 	}
 
