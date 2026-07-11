@@ -22,5 +22,6 @@ Note: The plugin exports standard CSV data only.
 
 Loot data is stored locally in RuneLite's directory:
 
-
+```text
 .runelite/taizurs-loot-logger/loot-log.csv
+```
