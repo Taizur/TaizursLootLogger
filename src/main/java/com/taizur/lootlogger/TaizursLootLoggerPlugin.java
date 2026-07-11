@@ -78,7 +78,6 @@ public class TaizursLootLoggerPlugin extends Plugin
 			try
 			{
 				repository.save(ledger.getAllDrops());
-				System.out.println("Data Saved.");
 			}
 			catch (IOException e) {
 				e.printStackTrace();
