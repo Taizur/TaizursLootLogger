@@ -27,9 +27,6 @@ public class TaizursLootLoggerPlugin extends Plugin
 {
 
 	@Inject
-	private TaizursLootLoggerPluginConfig config;
-
-	@Inject
 	private ItemManager itemManager;
 
 	@Inject
@@ -46,9 +43,10 @@ public class TaizursLootLoggerPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
-		fileExecutor = Executors.newSingleThreadExecutor();
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		fileExecutor = executor;
 
-		fileExecutor.submit(() ->
+		executor.submit(() ->
 		{
 			try
 			{
@@ -57,11 +55,16 @@ public class TaizursLootLoggerPlugin extends Plugin
 
 				clientThread.invoke(() ->
 				{
+					if (fileExecutor != executor || executor.isShutdown())
+					{
+						return;
+					}
+
 					ledger.loadDrops(loadedDrops);
 					ledger.updatePrices();
 					Collection<DropTotal> snapshot = ledger.snapshotDrops();
 
-					fileExecutor.submit(() ->
+					executor.submit(() ->
 					{
 						try
 						{
@@ -80,7 +83,6 @@ public class TaizursLootLoggerPlugin extends Plugin
 			}
 		});
 	}
-
 	@Subscribe
 	public void onNpcLootReceived(NpcLootReceived lootEvent)
 	{
@@ -113,6 +115,7 @@ public class TaizursLootLoggerPlugin extends Plugin
 	protected void shutDown()
 	{
 		fileExecutor.shutdownNow();
+		ledger.clear();
 	}
 
 	@Provides

@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 
 @Slf4j
 public class CsvDropRepository
@@ -56,8 +58,8 @@ public class CsvDropRepository
             for (DropTotal drop: drops)
             {
                 String row =
-                                drop.getItemId() + "," +
-                                drop.getItemName() + "," +
+                        drop.getItemId() + "," +
+                                escapeCsv(drop.getItemName()) + "," +
                                 drop.isTradeable() + "," +
                                 drop.getTotalQuantity() + "," +
                                 drop.getGePrice();
@@ -82,9 +84,9 @@ public class CsvDropRepository
                     continue;
                 }
 
-                String[] values = line.split(",");
+                List<String> values = parseCsvLine(line);
 
-                if (values.length != 5)
+                if (values.size() != 5)
                 {
                     log.warn("Skipping malformed loot log row: {}", line);
                     continue;
@@ -92,11 +94,11 @@ public class CsvDropRepository
 
                 try
                 {
-                    int itemId = Integer.parseInt(values[0]);
-                    String itemName = values[1];
-                    boolean tradeable = Boolean.parseBoolean(values[2]);
-                    long totalQuantity = Long.parseLong(values[3]);
-                    int gePrice = Integer.parseInt(values[4]);
+                    int itemId = Integer.parseInt(values.get(0));
+                    String itemName = values.get(1);
+                    boolean tradeable = Boolean.parseBoolean(values.get(2));
+                    long totalQuantity = Long.parseLong(values.get(3));
+                    int gePrice = Integer.parseInt(values.get(4));
 
                     DropTotal drop = new DropTotal(
                             itemId,
@@ -116,5 +118,49 @@ public class CsvDropRepository
         }
 
         return loadedDrops;
+    }
+
+    private String escapeCsv(String value)
+    {
+        return "\"" + value.replace("\"", "\"\"") + "\"";
+    }
+
+    private List<String> parseCsvLine(String line)
+    {
+        List<String> values = new ArrayList<>();
+        StringBuilder currentValue = new StringBuilder();
+        boolean insideQuotes = false;
+
+        for (int i = 0; i < line.length(); i++)
+        {
+            char character = line.charAt(i);
+
+            if (character == '"')
+            {
+                if (insideQuotes
+                        && i + 1 < line.length()
+                        && line.charAt(i + 1) == '"')
+                {
+                    currentValue.append('"');
+                    i++;
+                }
+                else
+                {
+                    insideQuotes = !insideQuotes;
+                }
+            }
+            else if (character == ',' && !insideQuotes)
+            {
+                values.add(currentValue.toString());
+                currentValue.setLength(0);
+            }
+            else
+            {
+                currentValue.append(character);
+            }
+        }
+
+        values.add(currentValue.toString());
+        return values;
     }
 }

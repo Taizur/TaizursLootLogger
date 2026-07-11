@@ -95,4 +95,9 @@ public class DropLedger {
 
         return snapshot;
     }
+
+    public void clear()
+    {
+        drops.clear();
+    }
 }
